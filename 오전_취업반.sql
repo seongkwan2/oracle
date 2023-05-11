@@ -322,6 +322,210 @@ order by job asc, salary desc;
 
                                     
 
+--------------------------------------------------------------
+
+
+
+--2023-05-11
+
+
+create table test_func(
+    id number, 
+    num varchar2(20)
+);
+
+insert into test_func values(1, '34.5678');         --오라클에서는 문자열안에 숫자만 있으면
+                                                    --연산이 가능하다.
+
+select * from test_func where id = 1;
+
+
+--반올림 round
+select round(num,2) from test_func where id = 1;        --34.57
+select round(num/2,2) from test_func where id = 1;      --17.28
+
+--내림 trunc
+select trunc(num,2) from test_func where id = 1;        --34.56
+
+--MOD 함수는 첫 번째 인수를 두 번째 인수로 나눈 '나머지'를 반환
+--나누기가 / 아니고 % 이다.
+select mod(num,2) from test_func where id = 1;
+                                            --34.5678 % 2 -> 0.5678
+
+insert into test_func values(2, '55');
+select mod(num ,2) from test_func where id = 2;
+
+
+--------------------------------------------------------------
+
+
+--연습문제--
+insert into test_func values(3,'77');
+insert into test_func values(4,'67.123');
+insert into test_func values(5,'123.123');
+insert into test_func values(6,'99');
+insert into test_func values(7,'99.456');
+insert into test_func values(8,'128');
+insert into test_func values(9,'123.777');
+insert into test_func values(10,'101.44');
+
+--홀수 id 값들을 모두 출력하기
+select * from test_func where mod(id,2)=1;
+                                --id %2 == 1; 이랑 같은 말
+--짝수 id 값들을 2로 나눈뒤 소수점 2자리까지 표현(반올림)
+select id , round(num/2,2) from test_func where mod(id,2)=0;
+-- *를 사용하지 않고 각각 명시하면서 조건을 작성
+
+
+insert into test_func values(11, 'welcome To oracle');
+select * from test_func where id = 11;               --일반
+select upper(num) from test_func where id = 11;      --대문자
+select lower(num) from test_func where id = 11;      --소문자
+select initcap(num) from test_func where id = 11;    --첫 문자 대문자
+
+--------------------------------------------------------------
+
+--연습문제2--
+create table test_company(
+  name varchar2(20),
+  연봉 varchar2(20),
+  class varchar2(20)
+);
+insert into test_company values('hong gil dong_M','3600','Manager');
+insert into test_company values('kim gea ddong_M','2555','ManaGer');
+insert into test_company values('Go gil dong_M','2800','ManaGER');
+insert into test_company values('hong gil dong_E','3111','EmpLoyee');
+insert into test_company values('kim gea ddong_E','2600','EmpLoYee');
+insert into test_company values('Go gil dong_E','2950','employee');
+
+--직급이 manager인 사원을 검색하여 출력
+select * from test_company where lower(class) = 'manager';
+
+--직급이 employee 이면서 연봉이 2800이상인 사람을 모두 출력
+select * from test_company where lower(class) = 'employee' and 연봉 >= 2800;
+
+--모든 사원의 이름의 첫번째 글자는 대문자로 출력하고 한달 급여를 출력(소수점이하는 버림)
+SELECT INITCAP(name), TRUNC(연봉/12), lower(class) FROM test_company;
+
+
+--------------------------------------------------------------
+
+create table test_class(
+    class varchar2(10), 
+    score number
+);
+
+Insert into test_class values('A반',11);
+insert into test_class values('A반',12);
+insert into test_class values('A반',13);
+insert into test_class values('B반',21);
+insert into test_class values('B반',22);
+insert into test_class values('B반',23);
+insert into test_class values('1',31);
+insert into test_class values('1',32);
+insert into test_class values('1',33);
+insert into test_class values('',40);
+
+
+--총합을 구하는 함수 sum
+select sum(score) from test_class;
+
+--평균을 구하는 함수 avg
+select avg(score) from test_class;
+
+--최댓값을 구하는 함수 max
+select max(score) from test_class;
+
+--최소값을 구하는 함수 min
+select min(score) from test_class;
+
+--null값은 처리되지 않음
+select count(class) from test_class;
+
+--null포함 총 개수
+select count(*) from test_class;
+
+
+--그룹 함수
+select * from test_class;
+select class, sum(score) from test_class group by class;
+                                --같은 이름들을 묶어버림
+                                        
+select class, sum(score) from test_class group by class having sum(score)>60;
+                                --group by에서는 where가 아닌 having 을 이용
+                                
+--연습문제
+--각 클래스 별 개수를 출력하시오
+select class, sum(score) from test_class group by class;
+
+--각 클래스 별 평균을 구하고 평균 별 내림차순으로 정렬하여 출력하시오
+SELECT class, AVG(score)FROM test_class GROUP BY class ORDER BY class DESC;
+
+
+--각 Class별로 가장 큰 값과 가장 작은 값을 출력하시오
+select class, max(score),min(score) from test_class group by class;
+
+
+
+------------------------------------------------------------------
+
+
+create table testName(id varchar2(20), class varchar2(20));
+insert into testName values('홍길동','A반');
+insert into testName values('김개똥','B반');
+insert into testName values('고길동','C반');
+
+create table testLesson(id varchar2(20), lesson varchar2(20), score number);
+insert into testLesson values('홍길동','python',80);
+insert into testLesson values('홍길동','java',90);
+insert into testLesson values('홍길동','c언어',70);
+insert into testLesson values('김개똥','server2012',70);
+insert into testLesson values('김개똥','linux',90);
+insert into testLesson values('고길동','jsp',100);
+
+select * from testname;
+select * from testlesson;
+
+select * from testname, testlesson;
+select N.* , L.lesson, L.score from testname N, testlesson L;
+                                    --testname = N , testlesson = L (변수개념)
+-- N은 모든것을 출력 L은 lesson,score만 출력
+
+select * from testname N inner join testlesson L on N.id = L.id;
+                --testname과 testlesson을 합치겠다. 
+
+select N.*, L.lesson, L.score from testname N inner join testlesson L on N.id = L.id;
+                                                                --N의id와 L의id를 합친다.
+
+--연습문제
+
+--id가 홍길동인 사람의 인적사항을 출력 하시오
+--id, class, score만 출력하시오.
+select N.*, L.lesson, L.score from 
+    testname N inner join testlesson L on N.id = L.id;  --그냥 합친모습
+
+select N.id, N.class,L.lesson,L.score from 
+    testName N inner join testlesson L on N.id = L.id and N.id = '홍길동';  --합친후 id가 홍길동만 출력
+    
+    
+    
+--각 이름, 클래스별 합계와 평균을 출력 하시오
+--id는 testName테이블에서 받아오며,
+--나머지 값은 testLesson 테이블의 조인을 이용해서 표현하시오
+
+select N.id, N.class , sum(L.score), avg(L.score) 
+    from testname N inner join testlesson L on N.id = L.id group by N.id, N.class;
+    
+
+select N.id, N.class, sum(L.score), avg(L.score) 
+    from testname N inner join testlesson L on N.id = L.id group by N.id, N.class;
+
+--내림차순까지 적용
+select N.id, N.CLASS, sum(L.score), avg(L.score) from 
+        testName N inner join testlesson L on N.id=L.id group by N.id,N.CLASS order by class asc;
+
+
+
 
 
 
