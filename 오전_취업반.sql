@@ -523,9 +523,239 @@ select N.id, N.class, sum(L.score), avg(L.score)
 --내림차순까지 적용
 select N.id, N.CLASS, sum(L.score), avg(L.score) from 
         testName N inner join testlesson L on N.id=L.id group by N.id,N.CLASS order by class asc;
+        
+        
+        
+        
+--------2023-05-12---------
+
+-- 테이블 생성 SQL - membership
+CREATE TABLE membership
+(
+    m_id      VARCHAR2(20)    NOT NULL, 
+    m_pwd     VARCHAR2(20)    NULL, 
+    m_name    VARCHAR2(20)    NULL, 
+    m_addr    VARCHAR2(20)    NULL, 
+     PRIMARY KEY (m_id)
+);
+
+
+-- 테이블 생성 SQL - board
+CREATE TABLE board
+(
+    b_num        INT             NOT NULL, 
+    b_id         VARCHAR2(20)    NULL, 
+    b_title      VARCHAR2(20)    NULL, 
+    b_content    VARCHAR2(20)    NULL, 
+    b_date       DATE            NULL, 
+     PRIMARY KEY (b_num)
+);
+
+
+-- Auto Increment를 위한 Sequence 추가 SQL - board.b_num
+CREATE SEQUENCE board_SEQ
+START WITH 1
+INCREMENT BY 1;
+
+--시퀀스 삭제 명령어
+drop sequence board_seq;
+
+
+-- Foreign Key 설정 SQL - board(b_id) -> membership(m_id)
+ALTER TABLE board
+    ADD CONSTRAINT FK_board_b_id_membership_m_id FOREIGN KEY (b_id)
+        REFERENCES membership (m_id) ;
 
 
 
+insert into membership(m_id, m_pwd, m_name, m_addr)
+                values('aaa','aaa','홍길동','산골짜기');
+                
+select * from membership;
+
+drop table membership;
+drop table board;
+
+insert into board(b_num, b_id, b_title, b_content, b_date)
+                values(board_seq.nextval,'bbb','제목','내용',sysdate);
+
+insert into membership(m_id, m_pwd, m_name, m_addr)
+                values('bbb','aaa','홍길동','산골짜기');
+                
+select * from membership;
+select * from board;
+
+
+--연결이 이루어져 있으면 자식부터 삭제부터 해야함(외래키) (번거로우면 아래에 제약조건 해제)
+delete from membership where m_id = 'aaa';
+delete from board where b_id = 'aaa';
+
+delete from membership where m_id = 'bbb';
+delete from board where b_id = 'bbb';
+
+
+--제약조건을 해제하면 이제 각자 따로따로 인것
+-- Foreign Key 삭제 SQL - board(b_id)
+ALTER TABLE board
+DROP CONSTRAINT FK_board_b_id_membership_m_id;
+
+
+
+select * from membership;
+select * from board;
+
+
+insert into board(b_num, b_id, b_title, b_content, b_date)
+                values(board_seq.nextval,'bbb','제목','내용',sysdate);
+
+insert into membership(m_id, m_pwd, m_name, m_addr)
+                values('bbb','aaa','홍길동','산골짜기');
+                
+delete from membership where m_id = 'bbb';
+delete from board where b_id = 'bbb';
+
+
+------부모가 삭제되면 자식도 삭제-------
+-- Foreign Key 설정 SQL - board(b_id) -> membership(m_id)
+ALTER TABLE board
+    ADD CONSTRAINT FK_board_b_id_membership_m_id FOREIGN KEY (b_id)
+        REFERENCES membership (m_id) on delete CASCADE; --부모가 삭제되면 자식도 삭제(강제삭제)
+
+insert into membership(m_id, m_pwd, m_name, m_addr)
+                values('bbb','aaa','홍길동','산골짜기');
+                
+insert into board(b_num, b_id, b_title, b_content, b_date)
+                values(board_seq.nextval,'bbb','제목','내용',sysdate); --여러번생성
+
+
+
+
+select * from membership;          
+select * from board;
+
+
+delete from membership where m_id = 'bbb';  --멤버쉽 bbb삭제시 연결된 board의 bbb도 전부 삭제
+
+drop table membership;                      --연결되어있는 상태에서 테이블 삭제가 안됨
+drop table membership CASCADE CONSTRAINTS;  --연결이 되어 있어도 강제로 삭제
+drop table board;
+
+
+
+--연습문제
+
+
+-- 테이블 생성 SQL - member
+CREATE TABLE member
+(
+    m_id      VARCHAR2(20)    NOT NULL, 
+    m_pwd     VARCHAR2(20)    NULL, 
+    m_name    VARCHAR2(20)    NULL, 
+    m_addr    VARCHAR2(20)    NULL, 
+     PRIMARY KEY (m_id)
+);
+
+-- 테이블 생성 SQL - goods
+CREATE TABLE goods
+(
+    g_num          INT             NOT NULL, 
+    g_id           VARCHAR2(20)    NULL, 
+    g_name         VARCHAR2(20)    NULL, 
+    g_price        INT             NULL, 
+    g_count        INT             NULL, 
+    g_price_sum    INT             NULL, 
+    g_date         DATE            NULL, 
+     PRIMARY KEY (g_num)
+);
+
+-- Auto Increment를 위한 Sequence 추가 SQL - goods.g_num
+CREATE SEQUENCE goods_SEQ
+START WITH 1
+INCREMENT BY 1;
+
+
+-- Foreign Key 설정 SQL - goods(g_id) -> member(m_id)
+ALTER TABLE goods
+    ADD CONSTRAINT FK_g_id_m_id FOREIGN KEY (g_id)
+        REFERENCES member (m_id) ;
+
+-- Foreign Key 삭제 SQL - goods(g_id)
+-- ALTER TABLE goods
+-- DROP CONSTRAINT FK_g_id_m_id;
+
+insert into member(m_id, m_pwd, m_name, m_addr)
+                values('aaa','aaa','홍길동','산골짜기');
+insert into member(m_id, m_pwd, m_name, m_addr)
+                values('bbb','bbb','김개똥','개똥별');
+insert into member(m_id, m_pwd, m_name, m_addr)
+                values('ccc','ccc','고길동','마포구');
+insert into member(m_id, m_pwd, m_name, m_addr)
+                values('ddd','ddd','김말이','분식집');
+                
+insert into goods(g_num, g_id, g_name, g_price, g_count, g_price_sum, g_date)
+        values(goods_SEQ.nextval,'aaa','운동화',75000,2,150000,sysdate);
+insert into goods(g_num, g_id, g_name, g_price, g_count, g_price_sum, g_date)
+        values(goods_SEQ.nextval,'aaa','티셔츠',15000,5,75000,sysdate);
+insert into goods(g_num, g_id, g_name, g_price, g_count, g_price_sum, g_date)
+        values(goods_SEQ.nextval,'bbb','가방',450000,1,450000,sysdate);
+insert into goods(g_num, g_id, g_name, g_price, g_count, g_price_sum, g_date)
+        values(goods_SEQ.nextval,'bbb','책',35000,2,70000,sysdate);
+
+
+        
+select * from member;
+select * from goods;
+
+--시퀀스 1로 초기화
+alter sequence goods_seq increment by 1;
+
+delete from member;
+delete from goods;
+
+drop sequence goods_seq;
+drop table goods;
+
+--1번 문제의 답
+SELECT M.*, G.g_num, G.g_id, G.g_name, G.g_price, G.g_count, G.g_price_sum, G.g_date
+FROM member M INNER JOIN goods G ON M.m_id = G.g_id;
+
+--2번 문제의 답
+SELECT M.m_id,M.m_name, G.g_name, G.g_price_sum
+FROM member M INNER JOIN goods G ON M.m_id = G.g_id;
+
+--3번 문제의 답 (Sum함수를 이용하여 아이디별 총 금액을 출력하기)
+SELECT M.m_id,M.m_name, M.m_addr, sum(G.g_price_sum)
+FROM member M INNER JOIN goods G ON M.m_id = G.g_id 
+group by M.m_id, M.m_name, M.m_addr;
+
+--멤버 아이디와, 멤버 이름과 사는지역을 묶어버려서 '한사람으로 만들어버림'
+--그리고 그 사람이 구매한 가격을 합침
+
+
+
+--JAVA연동 실습--
+create table newst(
+id varchar2(20),
+name varchar2(20),
+age number,
+primary key(id)
+);
+
+insert into newst values('111','Hong',23);
+insert into newst values('222','Kim',20);
+insert into newst values('333','Go',30);
+
+commit;
+
+select * from newst;
+select * from newst where id ='111';
+
+
+insert into newst(id, name, age) values('555','오오오',20);
+commit; --커밋까지 해보고 다시 중복여부까지 확인
+
+
+delete from newst where id = '111';
 
 
 
